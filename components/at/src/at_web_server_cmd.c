@@ -679,17 +679,13 @@ static int at_web_find_arg(char *line, char *arg, char *buff, int buffLen)
     return -1; // not found
 }
 
-// AT web can use fatfs to storge html or use embeded file to storge html.
-// If use fatfs,we should enable AT FS Command support.
-#ifdef CONFIG_AT_WEB_USE_FATFS
-/* Send HTTP response with the contents of the requested file */
-static esp_err_t web_common_get_handler(httpd_req_t *req)
+static esp_err_t send_file_httpd(char* source_file_path, httpd_req_t *req, char* httpd_resp_type)
 {
     char filepath[ESP_AT_WEB_FILE_PATH_MAX];
     esp_err_t err = ESP_FAIL;
     web_server_context_t *s_web_context = (web_server_context_t*) req->user_ctx;
     strlcpy(filepath, s_web_context->base_path, sizeof(filepath));
-    strlcat(filepath, "/index.html", sizeof(filepath)); // Now, we just send the index html for the common handler
+    strlcat(filepath, source_file_path, sizeof(filepath)); // Now, we just send the index html for the common handler
 
     ESP_LOGW(TAG, "open file : %s", filepath);
     int fd = open(filepath, O_RDONLY);
@@ -700,7 +696,7 @@ static esp_err_t web_common_get_handler(httpd_req_t *req)
         return ESP_FAIL;
     }
 
-    httpd_resp_set_type(req, "text/html");
+    httpd_resp_set_type(req, httpd_resp_type);
 
     char *chunk = s_web_context->scratch;
     ssize_t read_bytes;
@@ -730,6 +726,15 @@ static esp_err_t web_common_get_handler(httpd_req_t *req)
     httpd_resp_send_chunk(req, NULL, 0);
     return ESP_OK;
 }
+
+// AT web can use fatfs to storge html or use embeded file to storge html.
+// If use fatfs,we should enable AT FS Command support.
+#ifdef CONFIG_AT_WEB_USE_FATFS
+/* Send HTTP response with the contents of the requested file */
+static esp_err_t web_common_get_handler(httpd_req_t *req)
+{
+    return send_file_httpd("/src/index.html", req, "text/html");
+}
 #else
 static esp_err_t index_html_get_handler(httpd_req_t *req)
 {
@@ -750,6 +755,19 @@ static esp_err_t web_common_get_handler(httpd_req_t *req)
     return ESP_OK;
 }
 #endif
+
+/* Serve CSS to web server */
+static esp_err_t web_css_get_handler(httpd_req_t *req)
+{
+    return send_file_httpd("/src/output.css", req, "text/css");
+}
+
+/* Serve JS to web server */
+static esp_err_t web_js_get_handler(httpd_req_t *req)
+{
+    return send_file_httpd("/src/script.js", req, "text/javascript");
+}
+
 
 /* A help function to get post request data */
 static esp_err_t recv_post_data(httpd_req_t *req, char *buf)
@@ -1750,7 +1768,7 @@ static esp_err_t start_web_server(const char *base_path, uint16_t server_port)
     strlcpy(s_web_context->base_path, base_path, sizeof(s_web_context->base_path));
 
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = 8;
+    config.max_uri_handlers = 10;
     config.max_open_sockets = 7; // It cannot be less than 7.
     config.server_port = server_port;
 
@@ -1770,7 +1788,9 @@ static esp_err_t start_web_server(const char *base_path, uint16_t server_port)
         {"/getaprecord", HTTP_GET, ap_record_get_handler, s_web_context},
         {"/getotainfo", HTTP_GET, ota_info_get_handler, s_web_context},
         {"/setotadata", HTTP_POST, ota_data_post_handler, s_web_context},
-        {"/", HTTP_GET, web_common_get_handler, s_web_context},
+        {"/output.css", HTTP_GET, web_css_get_handler, s_web_context},
+        {"/script.js", HTTP_GET, web_js_get_handler, s_web_context},
+        {"/", HTTP_GET, web_common_get_handler, s_web_context}
     };
 
     for (int i = 0; i < sizeof(httpd_uri_array) / sizeof(httpd_uri_t); i++) {
