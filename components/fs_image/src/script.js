@@ -89,9 +89,12 @@ function postNetworkData() {
 }
 
 function getResult() {
-  setTimeout(function () {
-    closeWindow();
-  }, 1e3);
+  Ajax.post("/getresult", "received=1", function (e) {
+    (isSend = !1), 
+    setTimeout(function () {
+      closeWindow();
+    }, 1e3);
+  });
 }
 
 function closeWindow() {
