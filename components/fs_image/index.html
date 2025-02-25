@@ -6,14 +6,42 @@
     <title>MeterHome</title>
     <link rel="icon" href="data:image/ico;base64,aWNv">
     <style>
-        * { margin: 0; padding: 0; outline: 0 !important; box-sizing: border-box; }
-        .d-flex { display: flex; }
-        .d-j-c { justify-content: center; }
-        .d-a-i { align-items: center; }
-        .home-wrap { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: #4a93f6; text-align: center; }
-        .home-content { width: 80%; max-width: 500px; background: #fff; border-radius: 20px; box-shadow: 2px 0 12px #fff; padding: 20px; position: relative; }
-        .btn-wrap button { width: 100%; line-height: 40px; background: #66aafe; color: #fff; border: 0; border-radius: 6px; cursor: pointer; transition: all .2s linear; }
-        .btn-wrap button:hover { opacity: .8; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .home-wrap {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #4a93f6;
+            text-align: center;
+        }
+        .home-content {
+            width: 80%;
+            max-width: 500px;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 2px 0 12px #fff;
+            padding: 20px;
+            position: relative;
+        }
+        .btn-wrap button {
+            width: 100%;
+            line-height: 40px;
+            background: #66aafe;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: opacity 0.2s linear;
+        }
+        .btn-wrap button:hover {
+            opacity: 0.8;
+        }
         .wifi-list-wrap {
             position: absolute;
             left: 0;
@@ -29,117 +57,107 @@
             text-align: left;
             display: none;
         }
-        .wifi-list-wrap ul { list-style: none; padding: 0; margin: 0; }
-        .wifi-list-wrap li { padding: 10px; cursor: pointer; }
-        .wifi-list-wrap li:hover { background: rgba(102, 170, 254, 0.5); }
+        .wifi-list-wrap ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .wifi-list-wrap li {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .wifi-list-wrap li:hover {
+            background: rgba(102, 170, 254, 0.5);
+        }
         .content img {
             display: block;
             margin: 0 auto 20px;
             max-width: 100px;
         }
-        .device-wrap { display: flex; flex-direction: column; gap: 15px; }
-        .device-item input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; }
+        .device-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .device-item input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
     <div class="home-wrap">
         <div class="home-content">
             <div class="content">
-                <img src="data:image/png;base64,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" alt="MeterHome Logo" />
                 <div class="device-wrap">
-                    <div id="ssid-wrap" class="device-item">
-                        <div class="ssid-input">
-                            <input id="ssid" maxlength="32" type="text" placeholder="SSID" readonly />
-                            <span id="show-wifi-list" class="icon" onclick="toggleWifiList()">📶</span>
-                        </div>
+                    <div class="device-item">
+                        <input id="ssid" maxlength="32" type="text" placeholder="SSID" />
+                        <span id="show-wifi-list" class="icon" onclick="toggleWifiList()">📶</span>
                         <div id="wifi-list" class="wifi-list-wrap">
                             <ul id="wifi-options"></ul>
                         </div>
                     </div>
-                    <div class="device-item"><input id="password" maxlength="64" type="password" placeholder="PASSWORD" /></div>
-                    <div class="device-item"><input id="message" disabled type="text" readonly placeholder="Message" /></div>
+                    <div class="device-item">
+                        <input id="password" maxlength="64" type="password" placeholder="PASSWORD" />
+                    </div>
+                    <div class="device-item">
+                        <input id="message" disabled type="text" readonly placeholder="Message" />
+                    </div>
                 </div>
-                <div class="btn-wrap"><button id="start-connect" onclick="postData()" class="btn">Connect</button></div>
+                <div class="btn-wrap">
+                    <button id="start-connect" onclick="postData()">Connect</button>
+                </div>
             </div>
         </div>
     </div>
     <script>
-        var Ajax = {
-            get: function(url, callback) {
-                var xhr = new XMLHttpRequest();
-                xhr.open("GET", url, true);
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
-                        callback(xhr.responseText);
-                    }
-                };
-                xhr.send();
+        const Ajax = {
+            get(url, callback) {
+                fetch(url)
+                    .then(response => response.text())
+                    .then(callback)
+                    .catch(console.error);
             },
-            post: function(url, data, callback, isJson = false) {
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", url, true);
-                xhr.setRequestHeader("Content-Type", isJson ? "application/json" : "application/x-www-form-urlencoded;charset=UTF-8");
-                xhr.onreadystatechange = function() {
-                    if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
-                        callback(xhr.responseText);
-                    }
-                };
-                xhr.send(isJson ? JSON.stringify(data) : data);
+            post(url, data, callback) {
+                fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.text())
+                .then(callback)
+                .catch(console.error);
             }
         };
-        
+
         function postData() {
-            let ssid = document.getElementById("ssid").value;
-            let password = document.getElementById("password").value;
-            if (!ssid) {
-                alert("Please enter SSID");
-                return;
-            }
-            if (ssid.length > 32) {
-                alert("SSID too long");
-                return;
-            }
-            if (password.length > 64) {
-                alert("Password too long");
-                return;
-            }
-            let data = { ssid: ssid, password: password };
-            Ajax.post("/setstainfo", data, function(response) {
-                console.log("Response received:", response);
-            }, true);
+            const ssid = document.getElementById("ssid").value;
+            const password = document.getElementById("password").value;
+            if (!ssid) return alert("Please enter SSID");
+            if (ssid.length > 32) return alert("SSID too long");
+            if (password.length > 64) return alert("Password too long");
+            
+            Ajax.post("/setstainfo", { ssid, password }, response => {
+                console.log(JSON.parse(response));
+            });
         }
+
         function toggleWifiList() {
             const wifiList = document.getElementById("wifi-list");
-            if (wifiList.style.display === "none" || wifiList.style.display === "") {
-                fetchWifiList();
-                wifiList.style.display = "block";
-            } else {
-                wifiList.style.display = "none";
-            }
+            wifiList.style.display = wifiList.style.display === "block" ? "none" : "block";
+            fetchWifiList();
         }
 
         function fetchWifiList() {
-            const wifiOptions = document.getElementById("wifi-options");
-            wifiOptions.innerHTML = "<li>Loading...</li>";
-            fetch("/getaprecord")
-                .then(response => response.json())
-                .then(data => {
-                    wifiOptions.innerHTML = "";
-                    if (data.aplist && data.aplist.length > 0) {
-                        data.aplist.forEach(network => {
-                            const li = document.createElement("li");
-                            li.textContent = network.ssid;
-                            li.onclick = () => selectWifi(network.ssid);
-                            wifiOptions.appendChild(li);
-                        });
-                    } else {
-                        wifiOptions.innerHTML = "<li>No networks found</li>";
-                    }
-                })
-                .catch(error => {
-                    wifiOptions.innerHTML = "<li>Error loading networks</li>";
-                    console.error("Error fetching Wi-Fi list:", error);
-                });
+            Ajax.get("/getaprecord", response => {
+                const data = JSON.parse(response);
+                const wifiOptions = document.getElementById("wifi-options");
+                wifiOptions.innerHTML = data.aplist?.length ?
+                    data.aplist.map(network => `<li onclick="selectWifi('${network.ssid}')">${network.ssid}</li>`).join('') :
+                    "<li>No networks found</li>";
+            });
         }
 
         function selectWifi(ssid) {
