@@ -64,6 +64,50 @@
         </div>
     </div>
     <script>
+        var Ajax = {
+            get: function(url, callback) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", url, true);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
+                        callback(xhr.responseText);
+                    }
+                };
+                xhr.send();
+            },
+            post: function(url, data, callback, isJson = false) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", url, true);
+                xhr.setRequestHeader("Content-Type", isJson ? "application/json" : "application/x-www-form-urlencoded;charset=UTF-8");
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
+                        callback(xhr.responseText);
+                    }
+                };
+                xhr.send(isJson ? JSON.stringify(data) : data);
+            }
+        };
+        
+        function postData() {
+            let ssid = document.getElementById("ssid").value;
+            let password = document.getElementById("password").value;
+            if (!ssid) {
+                alert("Please enter SSID");
+                return;
+            }
+            if (ssid.length > 32) {
+                alert("SSID too long");
+                return;
+            }
+            if (password.length > 64) {
+                alert("Password too long");
+                return;
+            }
+            let data = { ssid: ssid, password: password };
+            Ajax.post("/setstainfo", data, function(response) {
+                console.log("Response received:", response);
+            }, true);
+        }
         function toggleWifiList() {
             const wifiList = document.getElementById("wifi-list");
             if (wifiList.style.display === "none" || wifiList.style.display === "") {
